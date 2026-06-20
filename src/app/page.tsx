@@ -34,49 +34,46 @@ export default function Home() {
     setProgress(getProgress());
   }, []);
 
-  // 切换tab时刷新进度
   const handleTabChange = (tab: TabId) => {
     setActiveTab(tab);
     const { progress: p } = checkAchievements();
     setProgress({ ...p });
   };
 
-  // 子组件更新进度时调用
   const refreshProgress = () => {
     const { progress: p } = checkAchievements();
     setProgress({ ...p });
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50/50 to-white">
-      {/* 顶部导航 */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-blue-100 shadow-sm">
+    <div className="min-h-screen flex flex-col bamboo-texture" style={{ background: '#F5F0E6' }}>
+      {/* 顶部导航 - 古籍页眉风 */}
+      <header className="ancient-header sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4">
-          {/* 标题栏 */}
+          {/* 标题栏 - 书法标题左 + 积分右 */}
           <div className="flex items-center justify-between py-3">
-            <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-sm">
-                史
-              </div>
+            <div className="flex items-center gap-3">
+              {/* 印章 logo */}
+              <div className="seal" style={{ width: '2.5rem', height: '2.5rem', fontSize: '1rem' }}>史</div>
               <div>
-                <h1 className="text-lg font-bold text-gray-800 leading-tight">初中历史学习平台</h1>
-                <p className="text-xs text-gray-400 leading-tight">人教版 · 主观题提分利器</p>
+                <h1 className="font-cal text-xl leading-tight" style={{ color: '#2D2A24' }}>史学堂</h1>
+                <p className="text-xs leading-tight" style={{ color: '#8B8270' }}>人教版 · 主观题提分利器</p>
               </div>
             </div>
             {/* 积分 & 等级 */}
             {progress && (
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 bg-orange-50 px-3 py-1.5 rounded-full">
-                  <Flame className="w-4 h-4 text-orange-500" />
-                  <span className="text-sm font-semibold text-orange-600">{progress.streak}天</span>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded" style={{ background: '#EDE6D4', border: '1px solid #D4C9B0' }}>
+                  <Flame className="w-4 h-4" style={{ color: '#C7503B' }} />
+                  <span className="text-sm font-semibold" style={{ color: '#C7503B' }}>{progress.streak}天</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-blue-50 px-3 py-1.5 rounded-full">
-                  <Star className="w-4 h-4 text-blue-500" />
-                  <span className="text-sm font-semibold text-blue-600">Lv.{progress.level}</span>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded" style={{ background: '#EDE6D4', border: '1px solid #D4C9B0' }}>
+                  <Star className="w-4 h-4" style={{ color: '#5B7C5F' }} />
+                  <span className="text-sm font-semibold" style={{ color: '#5B7C5F' }}>Lv.{progress.level}</span>
                 </div>
-                <div className="flex items-center gap-1.5 bg-purple-50 px-3 py-1.5 rounded-full">
-                  <Trophy className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-semibold text-purple-600">{progress.totalPoints}</span>
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded" style={{ background: '#EDE6D4', border: '1px solid #D4C9B0' }}>
+                  <Trophy className="w-4 h-4" style={{ color: '#B8860B' }} />
+                  <span className="text-sm font-semibold" style={{ color: '#B8860B' }}>{progress.totalPoints}</span>
                 </div>
               </div>
             )}
@@ -91,10 +88,10 @@ export default function Home() {
                   key={tab.id}
                   onClick={() => handleTabChange(tab.id)}
                   className={cn(
-                    'flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all',
+                    'flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium whitespace-nowrap transition-all',
                     isActive
-                      ? 'bg-blue-500 text-white shadow-sm'
-                      : 'text-gray-500 hover:bg-blue-50 hover:text-blue-600'
+                      ? 'ancient-btn-active shadow-sm'
+                      : 'ancient-btn'
                   )}
                 >
                   <Icon className="w-4 h-4" />
@@ -117,10 +114,10 @@ export default function Home() {
         {activeTab === 'daily' && <DailyPractice onAnswer={refreshProgress} />}
       </main>
 
-      {/* 页脚 */}
-      <footer className="mt-auto border-t border-blue-100 bg-white">
-        <div className="max-w-6xl mx-auto px-4 py-4 text-center text-sm text-gray-400">
-          <p>初中历史学习平台 · 人教版 · 数据保存在本地浏览器</p>
+      {/* 页脚 - 卷轴底部 */}
+      <footer className="scroll-footer mt-auto">
+        <div className="max-w-6xl mx-auto px-4 py-4 text-center text-sm" style={{ color: '#8B8270' }}>
+          <p>史学堂 · 人教版初中历史 · 数据保存在本地浏览器</p>
         </div>
       </footer>
     </div>

@@ -44,72 +44,66 @@
 }
 
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.25rem;
+
+  /* 竹简古籍风配色 */
+  --background: #F5F0E6;          /* 宣纸米色 */
+  --foreground: #2D2A24;          /* 墨黑 */
+  --card: #FBF8F0;                /* 浅宣纸 */
+  --card-foreground: #2D2A24;
+  --popover: #FBF8F0;
+  --popover-foreground: #2D2A24;
+
+  --primary: #5B7C5F;             /* 竹青绿 */
+  --primary-foreground: #FBF8F0;
+  --secondary: #EDE6D4;           /* 浅竹色 */
+  --secondary-foreground: #2D2A24;
+  --muted: #E8E0CE;               /* 暗米色 */
+  --muted-foreground: #8B8270;    /* 灰褐 */
+
+  --accent: #C7503B;              /* 朱砂红 */
+  --accent-foreground: #FBF8F0;
+  --destructive: #C7503B;
+
+  --border: #D4C9B0;              /* 竹边色 */
+  --input: #D4C9B0;
+  --ring: #5B7C5F;
+
+  --chart-1: #5B7C5F;             /* 竹青 */
+  --chart-2: #C7503B;             /* 朱砂 */
+  --chart-3: #B8860B;             /* 青铜金 */
+  --chart-4: #8B8270;             /* 灰褐 */
+  --chart-5: #6B8E6B;             /* 浅竹 */
+
+  --sidebar: #EDE6D4;
+  --sidebar-foreground: #2D2A24;
+  --sidebar-primary: #5B7C5F;
+  --sidebar-primary-foreground: #FBF8F0;
+  --sidebar-accent: #E8E0CE;
+  --sidebar-accent-foreground: #2D2A24;
+  --sidebar-border: #D4C9B0;
+  --sidebar-ring: #5B7C5F;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #1A1814;
+  --foreground: #E8E0CE;
+  --card: #252320;
+  --card-foreground: #E8E0CE;
+  --popover: #252320;
+  --popover-foreground: #E8E0CE;
+  --primary: #6B9E6F;
+  --primary-foreground: #1A1814;
+  --secondary: #2D2A24;
+  --secondary-foreground: #E8E0CE;
+  --muted: #2D2A24;
+  --muted-foreground: #8B8270;
+  --accent: #D45A45;
+  --accent-foreground: #1A1814;
+  --destructive: #D45A45;
+  --border: #3D3830;
+  --input: #3D3830;
+  --ring: #6B9E6F;
 }
 
 @layer base {
@@ -118,5 +112,233 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "palt";
   }
+}
+
+/* ── 竹简古籍风自定义样式 ── */
+
+/* 书法标题字体 */
+.font-cal {
+  font-family: "STKaiti", "KaiTi", "楷体", "Noto Serif SC", serif;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+/* 竖排文字 */
+.vertical-text {
+  writing-mode: vertical-rl;
+  text-orientation: upright;
+  letter-spacing: 0.15em;
+}
+
+/* 竹节纹分隔线 */
+.bamboo-divider {
+  position: relative;
+  height: 2px;
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    #D4C9B0 10%,
+    #5B7C5F 50%,
+    #D4C9B0 90%,
+    transparent 100%
+  );
+}
+.bamboo-divider::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background: #5B7C5F;
+  border-radius: 1px;
+  box-shadow: 0 0 0 2px #F5F0E6;
+}
+
+/* 印章样式 */
+.seal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #C7503B;
+  color: #FBF8F0;
+  font-family: "STKaiti", "KaiTi", "楷体", serif;
+  font-weight: 700;
+  border-radius: 4px;
+  transform: rotate(-5deg);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+}
+.seal-sm {
+  width: 1.75rem;
+  height: 1.75rem;
+  font-size: 0.75rem;
+}
+
+/* 古风卡片 */
+.ancient-card {
+  background: #FBF8F0;
+  border: 1px solid #D4C9B0;
+  border-radius: 4px;
+  position: relative;
+}
+.ancient-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background: #5B7C5F;
+  border-radius: 4px 0 0 4px;
+}
+
+/* 古风按钮 */
+.ancient-btn {
+  border: 1px solid #5B7C5F;
+  border-radius: 4px;
+  background: transparent;
+  color: #2D2A24;
+  transition: all 0.2s;
+}
+.ancient-btn:hover {
+  background: #5B7C5F;
+  color: #FBF8F0;
+}
+.ancient-btn-active {
+  background: #5B7C5F;
+  color: #FBF8F0;
+}
+
+/* 朱砂批阅 - 正确 */
+.mark-correct {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #C7503B;
+  color: #FBF8F0;
+  font-family: "STKaiti", "KaiTi", "楷体", serif;
+  font-weight: 700;
+  border-radius: 4px;
+  transform: rotate(-8deg);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+/* 墨色叉 - 错误 */
+.mark-wrong {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: #2D2A24;
+  color: #FBF8F0;
+  font-family: "STKaiti", "KaiTi", "楷体", serif;
+  font-weight: 700;
+  border-radius: 4px;
+  transform: rotate(5deg);
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+/* 卡片角落印章标记 */
+.corner-seal {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: #C7503B;
+  color: #FBF8F0;
+  font-size: 0.625rem;
+  font-family: "STKaiti", "KaiTi", "楷体", serif;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 3px;
+  transform: rotate(12deg);
+  box-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+  z-index: 5;
+}
+
+/* 标题竖线装饰 */
+.title-deco {
+  position: relative;
+  padding-left: 12px;
+}
+.title-deco::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #5B7C5F;
+  border-radius: 2px;
+}
+
+/* 页眉古籍风 */
+.ancient-header {
+  background: #EDE6D4;
+  border-bottom: 2px solid #5B7C5F;
+  position: relative;
+}
+.ancient-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: #D4C9B0;
+}
+
+/* 卷轴底部 */
+.scroll-footer {
+  background: #EDE6D4;
+  border-top: 1px solid #D4C9B0;
+  position: relative;
+}
+.scroll-footer::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 5px;
+  background: #5B7C5F;
+  border-radius: 3px;
+}
+
+/* 输入框古风 */
+.ancient-input {
+  background: #FBF8F0;
+  border: 1px solid #D4C9B0;
+  border-radius: 4px;
+  color: #2D2A24;
+  transition: border-color 0.2s;
+}
+.ancient-input:focus {
+  border-color: #5B7C5F;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(91, 124, 95, 0.15);
+}
+
+/* 竹纹背景纹理 */
+.bamboo-texture {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 38px,
+      rgba(91, 124, 95, 0.04) 38px,
+      rgba(91, 124, 95, 0.04) 40px
+    );
 }

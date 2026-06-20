@@ -26,27 +26,25 @@ export default function TipsView() {
 
   return (
     <div className="space-y-4">
-      <div className="bg-amber-50 rounded-xl p-4">
+      <div className="ancient-card p-4">
         <div className="flex items-center gap-2 mb-1">
-          <Lightbulb className="w-5 h-5 text-amber-500" />
-          <h2 className="text-lg font-bold text-gray-800">主观题答题技巧卡片</h2>
+          <div className="seal seal-sm">技</div>
+          <h2 className="font-cal text-lg" style={{ color: '#2D2A24' }}>主观题答题技巧卡片</h2>
         </div>
-        <p className="text-sm text-gray-500">
-          宏观、通用的答题方法 · 考前多看几遍 · {TIP_CARDS.length}张卡片
+        <p className="text-sm" style={{ color: '#8B8270' }}>
+          共{TIP_CARDS.length}张卡片 · 点击卡片展开详情
         </p>
       </div>
 
       {/* 分类筛选 */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="flex gap-1.5 flex-wrap">
         {categories.map((cat) => (
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
             className={cn(
-              'px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all',
-              activeCategory === cat
-                ? 'bg-blue-500 text-white'
-                : 'bg-white text-gray-500 border border-gray-200 hover:border-blue-300'
+              'px-3 py-1.5 rounded text-sm font-medium transition-all',
+              activeCategory === cat ? 'ancient-btn-active' : 'ancient-btn'
             )}
           >
             {cat}
@@ -54,40 +52,46 @@ export default function TipsView() {
         ))}
       </div>
 
-      {/* 技巧卡片 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div className="bamboo-divider" />
+
+      {/* 卡片列表 */}
+      <div className="space-y-3">
         {filteredCards.map((card) => {
           const isExpanded = expandedCards.has(card.id);
           return (
-            <div
-              key={card.id}
-              className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
-            >
+            <div key={card.id} className="ancient-card relative">
+              {card.category === '审题' && <div className="corner-seal">审</div>}
+              {card.category === '题型公式' && <div className="corner-seal">式</div>}
+              {card.category === '材料分析' && <div className="corner-seal">材</div>}
+              {card.category === '答题规范' && <div className="corner-seal">范</div>}
+              {card.category === '日常提升' && <div className="corner-seal">升</div>}
               <button
                 onClick={() => toggleCard(card.id)}
-                className="w-full p-4 text-left"
+                className="w-full text-left p-4"
               >
-                <div className="flex items-start gap-2 mb-2">
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium flex-shrink-0">
-                    {card.category}
-                  </span>
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs px-2 py-0.5 rounded" style={{ background: '#EDE6D4', color: '#5B7C5F', border: '1px solid #D4C9B0' }}>
+                      {card.category}
+                    </span>
+                  </div>
                   {isExpanded ? (
-                    <ChevronDown className="w-4 h-4 text-gray-400 ml-auto flex-shrink-0 mt-0.5" />
+                    <ChevronDown className="w-4 h-4 ml-auto flex-shrink-0 mt-0.5" style={{ color: '#8B8270' }} />
                   ) : (
-                    <ChevronRight className="w-4 h-4 text-gray-400 ml-auto flex-shrink-0 mt-0.5" />
+                    <ChevronRight className="w-4 h-4 ml-auto flex-shrink-0 mt-0.5" style={{ color: '#8B8270' }} />
                   )}
                 </div>
-                <h3 className="font-semibold text-gray-800 mb-2">{card.title}</h3>
+                <h3 className="font-cal text-base mb-2" style={{ color: '#2D2A24' }}>{card.title}</h3>
                 <div className={cn(
-                  'text-sm text-gray-600 whitespace-pre-line',
+                  'text-sm whitespace-pre-line',
                   !isExpanded && 'line-clamp-3'
-                )}>
+                )} style={{ color: '#2D2A24' }}>
                   {card.content}
                 </div>
                 {isExpanded && card.example && (
-                  <div className="mt-3 p-3 bg-blue-50 rounded-lg">
-                    <div className="text-xs font-semibold text-blue-600 mb-1">示例</div>
-                    <div className="text-sm text-gray-700 whitespace-pre-line">{card.example}</div>
+                  <div className="mt-3 p-3 rounded" style={{ background: '#EDE6D4', border: '1px solid #D4C9B0' }}>
+                    <div className="text-xs font-semibold mb-1" style={{ color: '#5B7C5F' }}>示例</div>
+                    <div className="text-sm whitespace-pre-line" style={{ color: '#2D2A24' }}>{card.example}</div>
                   </div>
                 )}
               </button>
