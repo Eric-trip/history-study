@@ -21,3 +21,18 @@ reports/
 skills/
 examples/
 upload/
+
+# 个人配置文件，不需要推到公共仓库
+AGENTS.md
+SOUL.md
+IDENTITY.md
+USER.md
+TOOLS.md
+HEARTBEAT.md
+BOOTSTRAP.md
+db/
+download/
+mini-services/
+Caddyfile
+prisma/
+tsconfig.tsbuildinfo

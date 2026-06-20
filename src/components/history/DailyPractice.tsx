@@ -6,7 +6,7 @@ import { getQuestionById } from '@/data/questions';
 import { ChoiceQuestion, EssayQuestion, Question } from '@/types';
 import { gradeEssay } from '@/lib/grader';
 import { recordAnswer, addWrongAnswer, addStudyRecord, updateStreak } from '@/lib/storage';
-import { Calendar, CheckCircle2, XCircle, Flame, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronRight, Flame } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface DailyPracticeProps {
@@ -16,12 +16,13 @@ interface DailyPracticeProps {
 export default function DailyPractice({ onAnswer }: DailyPracticeProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [answers, setAnswers] = useState<Record<string, string>>({} as Record<string, string>);
   const [results, setResults] = useState<Record<string, { correct: boolean; score?: number; maxScore?: number }> | null>(null);
   const [showResult, setShowResult] = useState(false);
+  const [selectedChoice, setSelectedChoice] = useState<string | null>(null);
+  const [essayAnswer, setEssayAnswer] = useState('');
+  const [gradingResult, setGradingResult] = useState<any>(null);
   const [completed, setCompleted] = useState(false);
-
-  const today = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     const ids = getDailyPracticeQuestions(5);
@@ -29,46 +30,93 @@ export default function DailyPractice({ onAnswer }: DailyPracticeProps) {
     setQuestions(qs);
   }, []);
 
-  const handleSubmit = () => {
-    const q = questions[currentIdx];
-    const ans = answers[q.id] || '';
+  if (questions.length === 0) {
+    return (
+      <div className="ancient-card p-8 text-center">
+        <p style={{ color: '#8B8270' }}>加载中...</p>
+      </div>
+    );
+  }
 
-    if (q.type === 'choice') {
-      const correct = ans === (q as ChoiceQuestion).answer;
-      setResults({ ...results, [q.id]: { correct } });
-      recordAnswer(correct);
-      if (!correct) {
-        addWrongAnswer({
-          id: `wa-${q.id}-${Date.now()}`,
-          questionId: q.id,
-          questionType: 'choice',
-          questionText: q.question,
-          myAnswer: ans || '未作答',
-          correctAnswer: `${(q as ChoiceQuestion).answer}: ${(q as ChoiceQuestion).options.find(o => o.label === (q as ChoiceQuestion).answer)?.text || ''}`,
-          reason: '每日一练答错',
-          bookId: q.bookId,
-          createdAt: Date.now(),
-          reviewed: false,
-        });
-      }
+  // ── 完成界面 ──
+  if (completed) {
+    const correctCount = questions.filter((q) => results?.[q.id]?.correct).length;
+    const accuracy = Math.round((correctCount / questions.length) * 100);
+    return (
+      <div className="space-y-4">
+        <div className="ancient-card p-6 text-center">
+          <div className="seal mx-auto mb-3" style={{ background: '#5B7C5F' }}>
+            {accuracy >= 80 ? '优' : accuracy >= 60 ? '良' : '勉'}
+          </div>
+          <h2 className="font-cal text-xl mb-2" style={{ color: '#2D2A24' }}>今日功课已完成</h2>
+          <div className="text-3xl font-bold mb-1" style={{ color: '#5B7C5F' }}>
+            {correctCount}/{questions.length}
+          </div>
+          <p className="text-sm" style={{ color: '#8B8270' }}>正确率 {accuracy}%</p>
+          <div className="bamboo-divider my-4" />
+          <p className="text-sm" style={{ color: '#8B8270' }}>
+            {accuracy >= 80 ? '学有所成，再接再厉！' : accuracy >= 60 ? '勤学不辍，日有所进。' : '骐骥一跃，不能十步。继续努力！'}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const currentQ = questions[currentIdx];
+
+  const handleSubmitChoice = () => {
+    if (!selectedChoice) return;
+    const correct = selectedChoice === (currentQ as ChoiceQuestion).answer;
+    recordAnswer(correct);
+    addStudyRecord({ date: new Date().toISOString().slice(0, 10), totalQuestions: 1, correctCount: correct ? 1 : 0, studyTime: 1 });
+    if (!correct) {
+      addWrongAnswer({
+        id: `wa-${currentQ.id}-daily-${Date.now()}`,
+        questionId: currentQ.id,
+        questionType: 'choice',
+        questionText: currentQ.question,
+        myAnswer: selectedChoice,
+        correctAnswer: (currentQ as ChoiceQuestion).answer,
+        reason: '每日一练答错',
+        bookId: currentQ.bookId,
+        createdAt: Date.now(),
+        reviewed: false,
+      });
+    }
+    if (!results) {
+      setResults({ [currentQ.id]: { correct } });
     } else {
-      const grading = gradeEssay(q as EssayQuestion, ans);
-      setResults({ ...results, [q.id]: { correct: grading.score / grading.maxScore >= 0.6, score: grading.score, maxScore: grading.maxScore } });
-      recordAnswer(grading.score / grading.maxScore >= 0.6);
-      if (grading.score / grading.maxScore < 0.6) {
-        addWrongAnswer({
-          id: `wa-${q.id}-${Date.now()}`,
-          questionId: q.id,
-          questionType: (q as EssayQuestion).type,
-          questionText: q.question,
-          myAnswer: ans,
-          correctAnswer: (q as EssayQuestion).referenceAnswer,
-          reason: '每日一练得分过低',
-          bookId: q.bookId,
-          createdAt: Date.now(),
-          reviewed: false,
-        });
-      }
+      setResults({ ...results, [currentQ.id]: { correct } });
+    }
+    setShowResult(true);
+    onAnswer();
+  };
+
+  const handleSubmitEssay = () => {
+    if (!essayAnswer.trim()) return;
+    const result = gradeEssay(currentQ as EssayQuestion, essayAnswer);
+    setGradingResult(result);
+    const correct = result.score >= result.maxScore * 0.6;
+    recordAnswer(correct);
+    addStudyRecord({ date: new Date().toISOString().slice(0, 10), totalQuestions: 1, correctCount: correct ? 1 : 0, studyTime: 1 });
+    if (!correct) {
+      addWrongAnswer({
+        id: `wa-${currentQ.id}-daily-${Date.now()}`,
+        questionId: currentQ.id,
+        questionType: 'essay',
+        questionText: currentQ.question,
+        myAnswer: essayAnswer,
+        correctAnswer: (currentQ as EssayQuestion).referenceAnswer,
+        reason: `每日一练得分${result.score}/${result.maxScore}`,
+        bookId: currentQ.bookId,
+        createdAt: Date.now(),
+        reviewed: false,
+      });
+    }
+    if (!results) {
+      setResults({ [currentQ.id]: { correct, score: result.score, maxScore: result.maxScore } });
+    } else {
+      setResults({ ...results, [currentQ.id]: { correct, score: result.score, maxScore: result.maxScore } });
     }
     setShowResult(true);
     onAnswer();
@@ -77,183 +125,155 @@ export default function DailyPractice({ onAnswer }: DailyPracticeProps) {
   const handleNext = () => {
     if (currentIdx < questions.length - 1) {
       setCurrentIdx(currentIdx + 1);
+      setSelectedChoice(null);
+      setEssayAnswer('');
+      setGradingResult(null);
       setShowResult(false);
     } else {
-      // 完成
-      setCompleted(true);
-      addStudyRecord({
-        date: today,
-        totalQuestions: questions.length,
-        correctCount: Object.values(results || {}).filter((r) => r.correct).length,
-        studyTime: 10,
-      });
       updateStreak();
-      onAnswer();
+      setCompleted(true);
     }
   };
 
-  // ── 完成界面 ──
-  if (completed) {
-    const correctCount = Object.values(results || {}).filter((r) => r.correct).length;
-    return (
-      <div className="space-y-4">
-        <div className="bg-gradient-to-br from-green-500 to-blue-500 rounded-2xl p-6 text-white text-center shadow-lg">
-          <CheckCircle2 className="w-16 h-16 mx-auto mb-3" />
-          <h2 className="text-2xl font-bold mb-2">今日练习完成！</h2>
-          <p className="text-blue-100 mb-4">{today}</p>
-          <div className="bg-white/20 backdrop-blur rounded-xl p-4 inline-block">
-            <div className="text-3xl font-bold">{correctCount}/{questions.length}</div>
-            <div className="text-sm text-blue-100 mt-1">正确率 {Math.round((correctCount / questions.length) * 100)}%</div>
-          </div>
-        </div>
-        <div className="bg-orange-50 rounded-xl p-4 flex items-center gap-3">
-          <Flame className="w-8 h-8 text-orange-500" />
-          <div>
-            <div className="font-semibold text-gray-800">连续打卡+1！</div>
-            <div className="text-sm text-gray-500">坚持每天练习，主观题成绩一定会提高</div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (questions.length === 0) {
-    return (
-      <div className="bg-white rounded-xl p-8 border border-gray-100 text-center">
-        <Calendar className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-        <p className="text-gray-400 text-sm">正在加载今日练习...</p>
-      </div>
-    );
-  }
-
-  const currentQ = questions[currentIdx];
-  const result = results?.[currentQ.id];
-
   return (
     <div className="space-y-4">
-      <div className="bg-green-50 rounded-xl p-4 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-green-500" />
-          <div>
-            <h2 className="text-lg font-bold text-gray-800">每日一练</h2>
-            <p className="text-xs text-gray-500">{today} · 每天5题 · 坚持就是胜利</p>
+      {/* 顶部 */}
+      <div className="ancient-card p-4">
+        <div className="flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <div className="seal seal-sm">日</div>
+            <h2 className="font-cal text-lg" style={{ color: '#2D2A24' }}>每日一练</h2>
+          </div>
+          <div className="flex items-center gap-1 text-sm" style={{ color: '#8B8270' }}>
+            <Calendar className="w-4 h-4" />
+            {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric' })}
           </div>
         </div>
-        <div className="flex gap-1">
-          {questions.map((q, idx) => (
-            <div
-              key={q.id}
-              className={cn(
-                'w-7 h-7 rounded-lg text-xs font-bold flex items-center justify-center',
-                idx === currentIdx
-                  ? 'bg-green-500 text-white'
-                  : results?.[q.id]
-                    ? results[q.id].correct
-                      ? 'bg-green-100 text-green-600'
-                      : 'bg-red-100 text-red-600'
-                    : 'bg-gray-100 text-gray-400'
-              )}
-            >
-              {idx + 1}
-            </div>
-          ))}
+        <div className="bamboo-divider my-3" />
+        <div className="flex items-center gap-1 text-sm" style={{ color: '#5B7C5F' }}>
+          <Flame className="w-4 h-4" />
+          第 {currentIdx + 1} / {questions.length} 题
         </div>
       </div>
 
-      {/* 题目 */}
-      <div className="bg-white rounded-xl p-5 border border-gray-100 space-y-4">
-        <div className="flex items-center gap-2">
-          <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 font-medium">
-            第{currentIdx + 1}题
-          </span>
-          <span className="text-xs px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 font-medium">
+      {/* 题目卡片 */}
+      <div className="ancient-card p-4 sm:p-5">
+        <div className="flex items-start gap-2 mb-3">
+          <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: '#E8F0E8', color: '#5B7C5F', border: '1px solid #5B7C5F' }}>
             {currentQ.type === 'choice' ? '选择题' : '主观题'}
           </span>
-          {currentQ.type !== 'choice' && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-orange-50 text-orange-600 font-medium">
-              {(currentQ as EssayQuestion).points}分
-            </span>
-          )}
+          <h3 className="font-medium text-sm sm:text-base leading-relaxed" style={{ color: '#2D2A24' }}>
+            {currentQ.question}
+          </h3>
         </div>
 
-        <h3 className="text-base font-medium text-gray-800">{currentQ.question}</h3>
-
-        {currentQ.type === 'choice' ? (
+        {/* 选择题 */}
+        {currentQ.type === 'choice' && (
           <div className="space-y-2">
             {(currentQ as ChoiceQuestion).options.map((opt) => {
-              const isSelected = answers[currentQ.id] === opt.label;
-              const isCorrect = opt.label === (currentQ as ChoiceQuestion).answer;
-              const showCorrect = showResult && isCorrect;
-              const showWrong = showResult && isSelected && !isCorrect;
+              const isSelected = selectedChoice === opt.label;
+              const isCorrect = showResult && opt.label === (currentQ as ChoiceQuestion).answer;
+              const isWrong = showResult && isSelected && opt.label !== (currentQ as ChoiceQuestion).answer;
               return (
                 <button
                   key={opt.label}
-                  onClick={() => !showResult && setAnswers({ ...answers, [currentQ.id]: opt.label })}
                   disabled={showResult}
-                  className={cn(
-                    'w-full flex items-center gap-3 p-3 rounded-lg border-2 text-left transition-all',
-                    !showResult && (isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-100 hover:border-blue-300'),
-                    showCorrect && 'border-green-500 bg-green-50',
-                    showWrong && 'border-red-500 bg-red-50',
-                    showResult && !showCorrect && !showWrong && 'border-gray-100 opacity-60'
-                  )}
+                  onClick={() => setSelectedChoice(opt.label)}
+                  className={cn('w-full text-left p-3 rounded text-sm transition-all')}
+                  style={
+                    isCorrect
+                      ? { background: '#E8F0E8', border: '2px solid #5B7C5F', color: '#2D2A24' }
+                      : isWrong
+                        ? { background: '#FDF0EE', border: '2px solid #C7503B', color: '#2D2A24' }
+                        : isSelected
+                          ? { background: '#5B7C5F', border: '1px solid #4A6650', color: '#F5F0E6' }
+                          : { background: '#FBF8F0', border: '1px solid #D4C9B0', color: '#2D2A24' }
+                  }
                 >
-                  <span className={cn(
-                    'w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0',
-                    !showResult && (isSelected ? 'bg-blue-500 text-white' : 'bg-gray-100 text-gray-500'),
-                    showCorrect && 'bg-green-500 text-white',
-                    showWrong && 'bg-red-500 text-white',
-                    showResult && !showCorrect && !showWrong && 'bg-gray-100 text-gray-400'
-                  )}>
-                    {showCorrect ? '✓' : showWrong ? '✗' : opt.label}
-                  </span>
-                  <span className="text-sm text-gray-700">{opt.text}</span>
+                  <span className="font-medium mr-2">{opt.label}.</span>
+                  {opt.text}
+                  {isCorrect && <span className="float-right">✓</span>}
+                  {isWrong && <span className="float-right">✗</span>}
                 </button>
               );
             })}
           </div>
-        ) : (
+        )}
+
+        {/* 主观题 */}
+        {currentQ.type !== 'choice' && (
           <textarea
-            value={answers[currentQ.id] || ''}
-            onChange={(e) => setAnswers({ ...answers, [currentQ.id]: e.target.value })}
+            value={essayAnswer}
+            onChange={(e) => setEssayAnswer(e.target.value)}
             disabled={showResult}
-            placeholder="在此输入答案... 分点作答，使用历史术语"
-            className="w-full min-h-[150px] p-3 border-2 border-gray-100 rounded-lg text-sm focus:border-blue-300 focus:outline-none resize-y disabled:bg-gray-50"
+            placeholder="在此输入你的答案... 提示：分点作答（①②③④），使用历史术语，史论结合"
+            className="w-full p-3 ancient-input text-sm min-h-[120px]"
           />
         )}
 
-        {!showResult ? (
+        {/* 提交按钮 */}
+        {!showResult && (
           <button
-            onClick={handleSubmit}
-            disabled={!answers[currentQ.id]?.trim()}
-            className="w-full py-2.5 bg-green-500 text-white rounded-lg font-medium hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            onClick={currentQ.type === 'choice' ? handleSubmitChoice : handleSubmitEssay}
+            disabled={currentQ.type === 'choice' ? !selectedChoice : !essayAnswer.trim()}
+            className="w-full mt-3 py-2.5 rounded font-medium disabled:opacity-50"
+            style={{ background: '#5B7C5F', color: '#F5F0E6', border: '1px solid #4A6650' }}
           >
             提交答案
           </button>
-        ) : (
-          <div className="space-y-3 pt-2 border-t border-gray-100">
-            <div className={cn(
-              'flex items-center gap-2 font-medium text-sm',
-              result?.correct ? 'text-green-600' : 'text-red-600'
-            )}>
-              {result?.correct ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-              {result?.correct
-                ? currentQ.type === 'choice' ? '回答正确！+10分' : `得分：${result.score}/${result.maxScore}`
-                : currentQ.type === 'choice' ? '回答错误' : `得分：${result?.score || 0}/${result?.maxScore}`}
+        )}
+
+        {/* 结果反馈 */}
+        {showResult && (
+          <div className="mt-4 space-y-3">
+            {/* 印章反馈 */}
+            <div className="flex items-center justify-center py-2">
+              <div className="seal" style={{ background: results?.[currentQ.id]?.correct ? '#5B7C5F' : '#C7503B' }}>
+                {results?.[currentQ.id]?.correct ? '阅' : '批'}
+              </div>
             </div>
-            {currentQ.type !== 'choice' && (
-              <div className="p-3 bg-green-50 rounded-lg">
-                <div className="text-xs font-semibold text-green-600 mb-1">参考答案</div>
-                <div className="text-sm text-gray-700 whitespace-pre-line">{(currentQ as EssayQuestion).referenceAnswer}</div>
+
+            {currentQ.type === 'choice' && (
+              <div className="p-3 rounded" style={{ background: '#FBF8F0', border: '1px solid #D4C9B0' }}>
+                <div className="text-xs font-semibold mb-1" style={{ color: '#5B7C5F' }}>解析</div>
+                <div className="text-sm" style={{ color: '#2D2A24' }}>{currentQ.explanation}</div>
               </div>
             )}
-            <div className="p-3 bg-blue-50 rounded-lg">
-              <div className="text-xs font-semibold text-blue-600 mb-1">解析</div>
-              <div className="text-sm text-gray-700">{currentQ.explanation}</div>
+
+            {gradingResult && (
+              <>
+                <div className="p-3 rounded" style={{ background: '#FBF8F0', border: '1px solid #D4C9B0' }}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-xs font-semibold" style={{ color: '#5B7C5F' }}>得分</span>
+                    <span className="text-lg font-bold" style={{ color: '#5B7C5F' }}>
+                      {gradingResult.score}/{gradingResult.maxScore}
+                    </span>
+                  </div>
+                  <div className="text-xs space-y-1">
+                    {gradingResult.keywordMatches.map((km: any, i: number) => (
+                      <span key={i} className="inline-block mr-2 text-xs" style={{ color: km.matched ? '#5B7C5F' : '#C7503B' }}>
+                        {km.matched ? '✓' : '✗'} {km.keyword}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="text-xs mt-2" style={{ color: '#8B8270' }}>{gradingResult.feedback}</div>
+                </div>
+                <div className="p-3 rounded" style={{ background: '#FBF8F0', border: '1px solid #D4C9B0' }}>
+                  <div className="text-xs font-semibold mb-1" style={{ color: '#5B7C5F' }}>参考答案</div>
+                  <div className="text-sm whitespace-pre-line" style={{ color: '#2D2A24' }}>{(currentQ as EssayQuestion).referenceAnswer}</div>
+                </div>
+              </>
+            )}
+
+            <div className="p-3 rounded" style={{ background: '#FBF8F0', border: '1px solid #D4C9B0' }}>
+              <div className="text-xs font-semibold mb-1" style={{ color: '#B8860B' }}>解析</div>
+              <div className="text-sm" style={{ color: '#2D2A24' }}>{currentQ.explanation}</div>
             </div>
+
             <button
               onClick={handleNext}
-              className="w-full py-2.5 bg-blue-500 text-white rounded-lg font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-1"
+              className="w-full py-2.5 rounded font-medium flex items-center justify-center gap-1"
+              style={{ background: '#5B7C5F', color: '#F5F0E6', border: '1px solid #4A6650' }}
             >
               {currentIdx < questions.length - 1 ? '下一题' : '完成今日练习'}
               <ChevronRight className="w-4 h-4" />
